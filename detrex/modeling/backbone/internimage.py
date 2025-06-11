@@ -8,7 +8,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
-from timm.models.layers import trunc_normal_, DropPath
+try:
+    from timm.layers import DropPath, trunc_normal_
+except ImportError:
+    from timm.models.layers import trunc_normal_, DropPath
 
 from detectron2.utils.logger import setup_logger
 from detectron2.modeling.backbone import Backbone
