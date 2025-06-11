@@ -22,4 +22,4 @@ model.neck.in_features = ["p1", "p2", "p3"]
 
 # modify training config
 train.init_checkpoint = "/path/to/convnext_small_22k_1k_384.pth"
-train.output_dir = "./output/dino_convnext_small_384_4scale_12ep"
+train.output_dir = "./outputs/dino_convnext_small_384_4scale_12ep"

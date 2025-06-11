@@ -17,7 +17,7 @@ model.position_embedding.offset = 0.0
 
 # modify training config
 train.init_checkpoint = "./pre-trained/resnet_torch/r50_v1.pkl"
-train.output_dir = "./output/focus_detr_r50_4scale_36ep_v2"
+train.output_dir = "./outputs/focus_detr_r50_4scale_36ep_v2"
 
 # max training iterations
 train.max_iter = 270000

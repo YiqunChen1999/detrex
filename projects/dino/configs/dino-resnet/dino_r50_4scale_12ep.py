@@ -9,7 +9,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/dino_r50_4scale_12ep"
+train.output_dir = "./outputs/dino_r50_4scale_12ep"
 
 # max training iterations
 train.max_iter = 90000

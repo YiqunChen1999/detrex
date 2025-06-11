@@ -1,8 +1,8 @@
-#Copyright (C) 2023. Huawei Technologies Co., Ltd. All rights reserved.
+# Copyright (C) 2023. Huawei Technologies Co., Ltd. All rights reserved.
 
-#This program is free software; you can redistribute it and/or modify it under the terms of the MIT License.
+# This program is free software; you can redistribute it and/or modify it under the terms of the MIT License.
 
-#This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the MIT License for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the MIT License for more details.
 
 from detrex.config import get_config
 from ..models.focus_detr_r50 import model
@@ -16,7 +16,7 @@ train = get_config("common/train.py").train
 # modify training config
 # train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
 train.init_checkpoint = "./pre-trained/resnet_torch/r50_v1.pkl"
-train.output_dir = "./output/focus_detr_r50_4scale_12ep"
+train.output_dir = "./outputs/focus_detr_r50_4scale_12ep"
 
 # max training iterations
 train.max_iter = 90000

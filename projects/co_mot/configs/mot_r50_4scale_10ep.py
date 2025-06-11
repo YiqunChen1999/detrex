@@ -13,15 +13,17 @@ from detrex.config import get_config
 from .mot_r50 import model
 
 # get default config
-dataloader = LazyConfig.load("projects/co_mot/configs/common/data/dancetrack_mot.py").dataloader
+dataloader = LazyConfig.load(
+    "projects/co_mot/configs/common/data/dancetrack_mot.py").dataloader
 optimizer = get_config("common/optim.py").AdamW
-lr_multiplier = get_config("common/coco_schedule.py").lr_multiplier_12ep  # 这个需要改
-# lr_multiplier = 
+lr_multiplier = get_config(
+    "common/coco_schedule.py").lr_multiplier_12ep  # 这个需要改
+# lr_multiplier =
 train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "/mnt/dolphinfs/hdd_pool/docker/user/hadoop-vacv/yanfeng/project/MOTRv2/detrex/output/mot_r50_4scale_12ep"
+train.output_dir = "/mnt/dolphinfs/hdd_pool/docker/user/hadoop-vacv/yanfeng/project/MOTRv2/detrex/outputs/mot_r50_4scale_12ep"
 
 # dancetrack 41796 imgs
 # max training iterations
@@ -39,23 +41,23 @@ train.clip_grad.params.norm_type = 2
 train.device = "cuda"
 model.device = train.device
 
-# 
+#
 train.lr_backbone_names = ['backbone.0']
 train.lr_linear_proj_names = ['reference_points', 'sampling_offsets',]
 
 # for ddp
-train.ddp=dict(
-        broadcast_buffers=False,
-        find_unused_parameters=True,
-        fp16_compression=False,
-    )
+train.ddp = dict(
+    broadcast_buffers=False,
+    find_unused_parameters=True,
+    fp16_compression=False,
+)
 
 # modify optimizer config
 optimizer.lr = 2e-4
 optimizer.lr_backbone = 2e-5
 optimizer.lr_linear_proj_mult = 0.1
 
-optimizer.sgd=False
+optimizer.sgd = False
 optimizer.weight_decay = 1e-4
 
 optimizer.betas = (0.9, 0.999)

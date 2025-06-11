@@ -18,15 +18,15 @@ lr_multiplier = L(WarmupParamScheduler)(
     warmup_length=10 / train.max_iter,
     warmup_factor=1.0,
 )
-model.panoptic_on=True
-model.semantic_on=True
-model.sem_seg_head.transformer_predictor.initialize_box_type="no"
-model.sem_seg_head.num_classes=133
+model.panoptic_on = True
+model.semantic_on = True
+model.sem_seg_head.transformer_predictor.initialize_box_type = "no"
+model.sem_seg_head.num_classes = 133
 optimizer = get_config("common/optim.py").AdamW
 
 # initialize checkpoint to be loaded
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/dab_detr_r50_50ep"
+train.output_dir = "./outputs/dab_detr_r50_50ep"
 
 
 # run evaluation every 5000 iters
@@ -60,4 +60,3 @@ dataloader.train.num_workers = 16
 # # surpose you're using 4 gpus for training and the batch size for
 # # each gpu is 16/4 = 4
 dataloader.train.total_batch_size = 16
-

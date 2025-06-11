@@ -12,7 +12,7 @@ from detectron2.config import LazyCall as L
 
 # modify training config
 train.init_checkpoint = "/path/to/focalnet_small_lrf.pth"
-train.output_dir = "./output/dino_focal_small_lrf_fl3_4scale_12ep"
+train.output_dir = "./outputs/dino_focal_small_lrf_fl3_4scale_12ep"
 
 
 # convert to focal-small 3level

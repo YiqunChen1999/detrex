@@ -12,25 +12,25 @@ train = get_config("common/train.py").train
 
 
 # modify model config
-model.backbone.net.img_size = 1280 
-model.backbone.square_pad = 1280  
-model.backbone.net.patch_size = 16  
-model.backbone.net.window_size = 16  
+model.backbone.net.img_size = 1280
+model.backbone.square_pad = 1280
+model.backbone.net.patch_size = 16
+model.backbone.net.window_size = 16
 model.backbone.net.embed_dim = 1024
 model.backbone.net.depth = 24
 model.backbone.net.num_heads = 16
-model.backbone.net.mlp_ratio = 4*2/3
+model.backbone.net.mlp_ratio = 4 * 2 / 3
 model.backbone.net.use_act_checkpoint = True
-model.backbone.net.drop_path_rate = 0.4  
+model.backbone.net.drop_path_rate = 0.4
 
 # 5, 11, 17, 23 for global attention
 model.backbone.net.window_block_indexes = (
-    list(range(0, 5)) + list(range(6, 11)) + list(range(12, 17)) + list(range(18, 23))
-)
+    list(range(0, 5)) + list(range(6, 11)) + list(range(12, 17))
+    + list(range(18, 23)))
 
 # modify training config
 train.init_checkpoint = "/path/to/eva02_L_pt_m38m_p14to16.pt"
-train.output_dir = "./output/dino_eva_02_vitdet_l_4attn_1024_lrd0p8_4scale_12ep"
+train.output_dir = "./outputs/dino_eva_02_vitdet_l_4attn_1024_lrd0p8_4scale_12ep"
 
 # max training iterations
 train.max_iter = 90000
@@ -49,7 +49,8 @@ model.device = train.device
 optimizer.lr = 1e-4
 optimizer.betas = (0.9, 0.999)
 optimizer.weight_decay = 1e-4
-optimizer.params.lr_factor_func = partial(get_vit_lr_decay_rate, lr_decay_rate=0.8, num_layers=24)
+optimizer.params.lr_factor_func = partial(
+    get_vit_lr_decay_rate, lr_decay_rate=0.8, num_layers=24)
 optimizer.params.overrides = {}
 optimizer.params.weight_decay_norm = None
 
@@ -60,4 +61,3 @@ dataloader.train.num_workers = 16
 # surpose you're using 4 gpus for training and the batch size for
 # each gpu is 16/4 = 4
 dataloader.train.total_batch_size = 16
-

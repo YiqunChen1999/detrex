@@ -8,7 +8,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/detr_r50_300ep"
+train.output_dir = "./outputs/detr_r50_300ep"
 train.max_iter = 554400
 
 # modify lr_multiplier

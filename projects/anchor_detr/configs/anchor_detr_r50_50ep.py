@@ -8,7 +8,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "https://download.pytorch.org/models/resnet50-0676ba61.pth"
-train.output_dir = "./output/anchor_detr_r50_50ep"
+train.output_dir = "./outputs/anchor_detr_r50_50ep"
 
 # max training iterations
 train.max_iter = 375000

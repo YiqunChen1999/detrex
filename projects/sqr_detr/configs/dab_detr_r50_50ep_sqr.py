@@ -8,7 +8,7 @@ train = get_config("common/train.py").train
 
 # initialize checkpoint to be loaded
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/dab_detr_r50_50ep_sqr"
+train.output_dir = "./outputs/dab_detr_r50_50ep_sqr"
 
 # max training iterations
 train.max_iter = 375000

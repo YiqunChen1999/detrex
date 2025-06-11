@@ -8,7 +8,7 @@ from .dino_r50_4scale_12ep import (
 
 from detectron2.layers import ShapeSpec
 
-# modify model config to generate 4 scale backbone features 
+# modify model config to generate 4 scale backbone features
 # and 5 scale input features
 model.backbone.out_features = ["res2", "res3", "res4", "res5"]
 
@@ -23,4 +23,4 @@ model.neck.num_outs = 5
 model.transformer.num_feature_levels = 5
 
 # modify training config
-train.output_dir = "./output/dino_r50_5scale_12ep"
+train.output_dir = "./outputs/dino_r50_5scale_12ep"

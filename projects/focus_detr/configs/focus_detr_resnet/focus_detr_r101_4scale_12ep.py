@@ -8,7 +8,7 @@ from .focus_detr_r50_4scale_12ep import (
 
 # modify training config
 train.init_checkpoint = "./pre-trained/resnet_torch/r101_v1.pkl"
-train.output_dir = "./output/focus_detr_r101_4scale_12ep"
+train.output_dir = "./outputs/focus_detr_r101_4scale_12ep"
 
 # modify model config
 model.backbone.stages.depth = 101

@@ -1,8 +1,8 @@
-#Copyright (C) 2023. Huawei Technologies Co., Ltd. All rights reserved.
+# Copyright (C) 2023. Huawei Technologies Co., Ltd. All rights reserved.
 
-#This program is free software; you can redistribute it and/or modify it under the terms of the MIT License.
+# This program is free software; you can redistribute it and/or modify it under the terms of the MIT License.
 
-#This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the MIT License for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the MIT License for more details.
 
 from detrex.config import get_config
 from ..models.focus_detr_swin_base_384 import model
@@ -15,7 +15,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "/cache/detrex/pre_train/swin_base_patch4_window12_384_22k.pth"
-train.output_dir = "./output/focus_detr_swin_base_384_4scale_22k_12ep"
+train.output_dir = "./outputs/focus_detr_swin_base_384_4scale_22k_12ep"
 
 # max training iterations
 train.max_iter = 270000

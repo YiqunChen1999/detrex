@@ -8,7 +8,7 @@ from .dino_swin_large_384_4scale_36ep import (
 
 from detectron2.layers import ShapeSpec
 
-# modify model config to generate 4 scale backbone features 
+# modify model config to generate 4 scale backbone features
 # and 5 scale input features
 model.backbone.out_indices = (0, 1, 2, 3)
 
@@ -23,4 +23,4 @@ model.neck.num_outs = 5
 model.transformer.num_feature_levels = 5
 
 # modify training config
-train.output_dir = "./output/dino_swin_large_384_5scale_36ep"
+train.output_dir = "./outputs/dino_swin_large_384_5scale_36ep"

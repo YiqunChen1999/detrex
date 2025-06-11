@@ -8,7 +8,7 @@ from .dab_detr_r50_50ep import (
 
 # modify training config
 train.init_checkpoint = "path/to/R-101.pkl"
-train.output_dir = "./output/dab_detr_r101_50ep"
+train.output_dir = "./outputs/dab_detr_r101_50ep"
 
 # modify model config
 model.backbone.stages.depth = 101

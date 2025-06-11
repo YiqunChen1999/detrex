@@ -9,7 +9,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/deta_r50_5scale_12ep_bs8"
+train.output_dir = "./outputs/deta_r50_5scale_12ep_bs8"
 
 # max training iterations
 train.max_iter = 180000
@@ -18,7 +18,7 @@ train.checkpointer.period = 15000
 
 
 # only freeze stem during training
-model.backbone.freeze_at = 1 
+model.backbone.freeze_at = 1
 
 
 # modify optimizer config
@@ -31,4 +31,3 @@ optimizer.params.lr_factor_func = lambda module_name: 0.1 if "backbone" in modul
 # surpose you're using 4 gpus for training and the batch size for
 # each gpu is 16/4 = 4
 dataloader.train.total_batch_size = 8
-

@@ -28,5 +28,5 @@ model.as_two_stage = True
 
 # modify training config
 train.init_checkpoint = "/mnt/pretrained_backbone/swin_tiny_patch4_window7_224.pth"
-train.output_dir = "./output/h_deformable_detr_swin_tiny_two_stage_12ep"
+train.output_dir = "./outputs/h_deformable_detr_swin_tiny_two_stage_12ep"
 train.max_iter = 90000

@@ -9,7 +9,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/deta_r50_5scale_12ep"
+train.output_dir = "./outputs/deta_r50_5scale_12ep"
 
 # max training iterations
 train.max_iter = 90000
@@ -27,4 +27,3 @@ dataloader.train.num_workers = 16
 # surpose you're using 4 gpus for training and the batch size for
 # each gpu is 16/4 = 4
 dataloader.train.total_batch_size = 16
-

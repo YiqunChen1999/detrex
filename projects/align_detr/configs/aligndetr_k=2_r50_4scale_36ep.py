@@ -7,14 +7,14 @@ optimizer = get_config("common/optim.py").AdamW
 lr_multiplier = get_config("common/coco_schedule.py").lr_multiplier_36ep
 train = get_config("common/train.py").train
 
-model.criterion.match_num = [2,2,2,2,2,2,1]
+model.criterion.match_num = [2, 2, 2, 2, 2, 2, 1]
 model.criterion.tau = 1.5
 # modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/aligndetr_k2_36ep"
+train.output_dir = "./outputs/aligndetr_k2_36ep"
 
 # max training iterations
-train.max_iter = 270000 
+train.max_iter = 270000
 
 # run evaluation every 5000 iters
 train.eval_period = 5000
@@ -23,7 +23,7 @@ train.eval_period = 5000
 train.log_period = 100
 
 # save checkpoint every 5000 iters
-train.checkpointer.period = 10000 
+train.checkpointer.period = 10000
 
 # gradient clipping for training
 train.clip_grad.enabled = True

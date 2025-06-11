@@ -8,5 +8,5 @@ model.as_two_stage = True
 
 # modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/h_deformable_detr_r50_two_stage_36ep"
+train.output_dir = "./outputs/h_deformable_detr_r50_two_stage_36ep"
 train.max_iter = 270000

@@ -17,7 +17,8 @@ model.backbone.net.beit_like_gamma = False
 model.backbone.net.freeze_patch_embed = True
 model.backbone.square_pad = 1536
 model.backbone.net.img_size = 1280  # only for correct dim in pos embed
-model.backbone.net.interp_type = "beit"  # for eval, slightly AP improvement at a higher res, e.g., 1280 training --> 1536 eval 
+# for eval, slightly AP improvement at a higher res, e.g., 1280 training --> 1536 eval
+model.backbone.net.interp_type = "beit"
 model.backbone.net.patch_size = 16
 model.backbone.net.window_size = 16
 model.backbone.net.embed_dim = 1408
@@ -28,13 +29,14 @@ model.backbone.net.use_act_checkpoint = True
 model.backbone.net.drop_path_rate = 0.6  # 0.5 --> 0.6
 # global attention for every 4 blocks
 model.backbone.net.window_block_indexes = (
-    list(range(0, 3)) + list(range(4, 7)) + list(range(8, 11)) + list(range(12, 15)) + list(range(16, 19)) +
-    list(range(20, 23)) + list(range(24, 27)) + list(range(28, 31)) + list(range(32, 35)) + list(range(36, 39))
-)
+    list(range(0, 3)) + list(range(4, 7)) + list(range(8, 11))
+    + list(range(12, 15)) + list(range(16, 19)) + list(range(20, 23))
+    + list(range(24, 27)) + list(range(28, 31)) + list(range(32, 35))
+    + list(range(36, 39)))
 
 # modify training config
 train.init_checkpoint = "/path/to/eva_o365.pth"
-train.output_dir = "./output/dino_eva_01_4scale_12ep"
+train.output_dir = "./outputs/dino_eva_01_4scale_12ep"
 
 # max training iterations
 train.max_iter = 90000
@@ -53,7 +55,8 @@ model.device = train.device
 optimizer.lr = 1e-4
 optimizer.betas = (0.9, 0.999)
 optimizer.weight_decay = 1e-4
-optimizer.params.lr_factor_func = partial(get_vit_lr_decay_rate, lr_decay_rate=0.9, num_layers=40)
+optimizer.params.lr_factor_func = partial(
+    get_vit_lr_decay_rate, lr_decay_rate=0.9, num_layers=40)
 optimizer.params.overrides = {}
 optimizer.params.weight_decay_norm = None
 
@@ -64,4 +67,3 @@ dataloader.train.num_workers = 16
 # surpose you're using 4 gpus for training and the batch size for
 # each gpu is 16/4 = 4
 dataloader.train.total_batch_size = 16
-

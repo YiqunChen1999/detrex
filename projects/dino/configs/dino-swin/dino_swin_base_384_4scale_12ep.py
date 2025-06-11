@@ -9,7 +9,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "/path/to/swin_base_patch4_window12_384_22kto1k.pth"
-train.output_dir = "./output/dino_swin_base_384_4scale_12ep"
+train.output_dir = "./outputs/dino_swin_base_384_4scale_12ep"
 
 # max training iterations
 train.max_iter = 90000

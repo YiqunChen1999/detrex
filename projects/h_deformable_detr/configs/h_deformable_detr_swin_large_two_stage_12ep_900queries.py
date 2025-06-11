@@ -31,5 +31,5 @@ model.transformer.two_stage_num_proposals = 2400
 
 # modify training config
 train.init_checkpoint = "/mnt/pretrained_backbone/swin_large_patch4_window7_224_22k.pth"
-train.output_dir = "./output/h_deformable_detr_swin_large_two_stage_12ep_900queries"
+train.output_dir = "./outputs/h_deformable_detr_swin_large_two_stage_12ep_900queries"
 train.max_iter = 90000

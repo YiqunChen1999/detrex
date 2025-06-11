@@ -7,7 +7,7 @@ from .models.detr_r50_dc5 import model
 # the urls can be found in: https://pytorch.org/vision/stable/models/resnet.html
 
 train.init_checkpoint = "https://download.pytorch.org/models/resnet101-63fe2227.pth"
-train.output_dir = "./output/detr_r50_dc5_300ep"
+train.output_dir = "./outputs/detr_r50_dc5_300ep"
 
 # modify model
 model.backbone.name = "resnet101"

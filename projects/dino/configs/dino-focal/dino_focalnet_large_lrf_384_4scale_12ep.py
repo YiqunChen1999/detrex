@@ -9,7 +9,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "/path/to/focalnet_large_lrf_384.pth"
-train.output_dir = "./output/dino_focalnet_large_4scale_12ep"
+train.output_dir = "./outputs/dino_focalnet_large_4scale_12ep"
 
 # max training iterations
 train.max_iter = 90000

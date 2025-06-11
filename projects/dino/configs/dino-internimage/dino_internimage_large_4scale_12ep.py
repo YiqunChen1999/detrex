@@ -9,7 +9,7 @@ train = get_config("common/train.py").train
 
 # modify training config
 train.init_checkpoint = "/path/to/internimage_l_22kto1k_384.pth"
-train.output_dir = "./output/dino_internimage_large_384_4scale_12ep"
+train.output_dir = "./outputs/dino_internimage_large_384_4scale_12ep"
 
 # max training iterations
 train.max_iter = 90000

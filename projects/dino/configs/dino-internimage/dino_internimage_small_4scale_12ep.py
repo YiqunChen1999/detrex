@@ -26,4 +26,4 @@ model.neck.in_features = ["p1", "p2", "p3"]
 
 # modify training config
 train.init_checkpoint = "/path/to/internimage_s_1k_224.pth"
-train.output_dir = "./output/dino_internimage_small_4scale_12ep"
+train.output_dir = "./outputs/dino_internimage_small_4scale_12ep"
