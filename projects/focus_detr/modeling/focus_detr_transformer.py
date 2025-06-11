@@ -319,6 +319,7 @@ class FOCUS_DETRTransformer(nn.Module):
             ref_y, ref_x = torch.meshgrid(
                 torch.linspace(0.5, H - 0.5, H, dtype=torch.float32, device=device),
                 torch.linspace(0.5, W - 0.5, W, dtype=torch.float32, device=device),
+                indexing="ij",
             )
             ref_y = ref_y.reshape(-1)[None] / (valid_ratios[:, None, lvl, 1] * H)
             ref_x = ref_x.reshape(-1)[None] / (valid_ratios[:, None, lvl, 0] * W)
@@ -363,8 +364,11 @@ class FOCUS_DETRTransformer(nn.Module):
             valid_H = torch.sum(~mask_flatten_[:, :, 0, 0], 1)
             valid_W = torch.sum(~mask_flatten_[:, 0, :, 0], 1)
 
-            grid_y, grid_x = torch.meshgrid(torch.linspace(0, H_ - 1, H_, dtype=torch.float32, device=memory.device),
-                                            torch.linspace(0, W_ - 1, W_, dtype=torch.float32, device=memory.device))
+            grid_y, grid_x = torch.meshgrid(
+                torch.linspace(0, H_ - 1, H_, dtype=torch.float32, device=memory.device),
+                torch.linspace(0, W_ - 1, W_, dtype=torch.float32, device=memory.device),
+                indexing="ij",
+            )
             grid = torch.cat([grid_x.unsqueeze(-1), grid_y.unsqueeze(-1)], -1)
             scale = torch.cat([valid_W.unsqueeze(-1), valid_H.unsqueeze(-1)], 1).view(N_, 1, 1, 2)
             grid = (grid.unsqueeze(0).expand(N_, -1, -1, -1) + 0.5) / scale

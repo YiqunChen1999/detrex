@@ -9,13 +9,46 @@ from __future__ import print_function
 from __future__ import division
 
 import warnings
+from typing import Callable
+
 import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
-from torch.cuda.amp import custom_bwd, custom_fwd
+try:
+    is_cuda_amp = False
+    from torch.amp.autocast_mode import (
+        custom_bwd as _custom_bwd,
+        custom_fwd as _custom_fwd,
+    )
+except ImportError:
+    is_cuda_amp = True
+    from torch.cuda.amp import (
+        custom_bwd as _custom_bwd,
+        custom_fwd as _custom_fwd,
+    )
 from torch.nn.init import xavier_uniform_, constant_
+
+
+def custom_fwd_wrapper(func: Callable, is_cuda_amp: bool) -> Callable:
+    def fwd(*args, **kwargs):
+        if not is_cuda_amp:
+            kwargs["device_type"] = "cuda"
+        return func(*args, **kwargs)
+    return fwd
+
+
+def custom_bwd_wrapper(func: Callable, is_cuda_amp: bool) -> Callable:
+    def bwd(*args, **kwargs):
+        if not is_cuda_amp:
+            kwargs["device_type"] = "cuda"
+        return func(*args, **kwargs)
+    return bwd
+
+
+custom_fwd = custom_fwd_wrapper(_custom_fwd, is_cuda_amp)
+custom_bwd = custom_bwd_wrapper(_custom_bwd, is_cuda_amp)
 
 
 class DCNv3Function(Function):
@@ -84,7 +117,8 @@ def _get_reference_points(spatial_shapes, device, kernel_h, kernel_w, dilation_h
             (dilation_w * (kernel_w - 1)) // 2 + 0.5 + (W_out - 1) * stride_w,
             W_out,
             dtype=torch.float32,
-            device=device))
+            device=device),
+        indexing="ij")
     ref_y = ref_y.reshape(-1)[None] / H_
     ref_x = ref_x.reshape(-1)[None] / W_
 
@@ -109,7 +143,8 @@ def _generate_dilation_grids(spatial_shapes, kernel_h, kernel_w, dilation_h, dil
             -((dilation_h * (kernel_h - 1)) // 2) +
             (kernel_h - 1) * dilation_h, kernel_h,
             dtype=torch.float32,
-            device=device))
+            device=device),
+        indexing="ij")
 
     points_list.extend([x / W_, y / H_])
     grid = torch.stack(points_list, -1).reshape(-1, 1, 2).\

@@ -34,7 +34,7 @@ def coords_fmap2orig(feature, stride):
     # print(w)
     shifts_x = torch.arange(0, w * stride, stride, dtype=torch.float32)
     shifts_y = torch.arange(0, h * stride, stride, dtype=torch.float32)
-    shift_y, shift_x = torch.meshgrid(shifts_y, shifts_x)
+    shift_y, shift_x = torch.meshgrid(shifts_y, shifts_x, indexing="ij")
     # print(shift_y.shape)
     # print(shift_x.shape)
     shift_x = torch.reshape(shift_x, [-1])

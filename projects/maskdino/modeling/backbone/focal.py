@@ -12,7 +12,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
-from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+try:
+    from timm.layers import DropPath, trunc_normal_
+except ImportError:
+    from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 # from util.misc import NestedTensor
 from detectron2.modeling import BACKBONE_REGISTRY, Backbone, ShapeSpec
 

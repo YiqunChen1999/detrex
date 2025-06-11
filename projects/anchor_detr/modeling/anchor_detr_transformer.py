@@ -138,7 +138,7 @@ class AnchorDETRTransformer(nn.Module):
             self.num_position=nx*ny
             x = (torch.arange(nx) + 0.5) / nx
             y = (torch.arange(ny) + 0.5) / ny
-            xy=torch.meshgrid(x,y)
+            xy=torch.meshgrid(x, y, indexing="ij")
             reference_points=torch.cat([xy[0].reshape(-1)[...,None],xy[1].reshape(-1)[...,None]],-1).cuda()
             reference_points = reference_points.unsqueeze(0).repeat(bs, self.num_pattern, 1)
         else:
