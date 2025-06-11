@@ -19,7 +19,7 @@ import time
 import torch
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
-from detectron2.checkpoint import DetectionCheckpointer
+from detrex.checkpoint import DetectionCheckpointer
 from detectron2.config import LazyConfig, instantiate
 from detectron2.engine import (
     SimpleTrainer,
@@ -87,7 +87,7 @@ class Trainer(SimpleTrainer):
         """
         assert self.model.training, "[Trainer] model was changed to eval mode!"
         assert torch.cuda.is_available(), "[Trainer] CUDA is required for AMP training!"
-        from torch.cuda.amp import autocast
+        from torch.amp import autocast
 
         start = time.perf_counter()
         """
@@ -100,7 +100,7 @@ class Trainer(SimpleTrainer):
         If you want to do something with the losses, you can wrap the model.
         """
         loss_dict = self.model(data)
-        with autocast(enabled=self.amp):
+        with autocast("cuda", enabled=self.amp):
             if isinstance(loss_dict, torch.Tensor):
                 losses = loss_dict
                 loss_dict = {"total_loss": loss_dict}

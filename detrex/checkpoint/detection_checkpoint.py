@@ -23,7 +23,11 @@ class DetectionCheckpointer(Checkpointer):
     2. correctly load checkpoints that are only available on the master worker
     """
 
-    def __init__(self, model, save_dir="", *, save_to_disk=None, **checkpointables):
+    def __init__(self,
+                 model, save_dir="", *, save_to_disk=None,
+                 load_weights_only: bool = False,  # so that the behaviours are consistent
+                 save_weights_only: bool = False,  # so that the behaviours are consistent
+                 **checkpointables):
         is_main_process = comm.is_main_process()
         super().__init__(
             model,
@@ -32,6 +36,8 @@ class DetectionCheckpointer(Checkpointer):
             **checkpointables,
         )
         self.path_manager = PathManager
+        self.load_weights_only = load_weights_only
+        self.save_weights_only = save_weights_only
 
     def load(self, path, *args, **kwargs):
         need_sync = False
@@ -61,6 +67,7 @@ class DetectionCheckpointer(Checkpointer):
         return ret
 
     def _load_file(self, filename):
+        weights_only = self.load_weights_only
         if filename.endswith(".pkl"):
             with PathManager.open(filename, "rb") as f:
                 data = pickle.load(f, encoding="latin1")
@@ -78,7 +85,7 @@ class DetectionCheckpointer(Checkpointer):
         elif filename.endswith(".pyth"):
             # assume file is from pycls; no one else seems to use the ".pyth" extension
             with PathManager.open(filename, "rb") as f:
-                data = torch.load(f)
+                data = torch.load(f, weights_only=weights_only)
             assert (
                 "model_state" in data
             ), f"Cannot load .pyth file {filename}; pycls checkpoints must contain 'model_state'."
@@ -89,7 +96,8 @@ class DetectionCheckpointer(Checkpointer):
             }
             return {"model": model_state, "__author__": "pycls", "matching_heuristics": True}
 
-        loaded = super()._load_file(filename)  # load native pth checkpoint
+        # loaded = super()._load_file(filename)  # load native pth checkpoint
+        loaded = torch.load(filename, weights_only=weights_only, map_location=torch.device("cpu"))
         if "model" not in loaded:
             loaded = {"model": loaded}
         loaded["matching_heuristics"] = True

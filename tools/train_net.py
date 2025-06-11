@@ -16,6 +16,7 @@ import logging
 import os
 import sys
 import time
+from typing import Mapping
 import torch
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
@@ -32,17 +33,18 @@ from detectron2.evaluation import inference_on_dataset, print_csv_format
 from detectron2.utils import comm
 from detectron2.utils.file_io import PathManager
 from detectron2.utils.events import (
-    CommonMetricPrinter, 
-    JSONWriter, 
+    CommonMetricPrinter,
+    JSONWriter,
     TensorboardXWriter
 )
-from detectron2.checkpoint import DetectionCheckpointer
+from detrex.constants import PROJ_ROOT
+from detrex.checkpoint import DetectionCheckpointer
 # from detrex.checkpoint import DetectionCheckpointer
 
 from detrex.utils import WandbWriter
 from detrex.modeling import ema
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+sys.path.append(PROJ_ROOT)
 
 
 class Trainer(SimpleTrainer):
@@ -68,11 +70,11 @@ class Trainer(SimpleTrainer):
 
         if amp:
             if grad_scaler is None:
-                from torch.cuda.amp import GradScaler
+                from torch.amp.grad_scaler import GradScaler
 
                 grad_scaler = GradScaler()
         self.grad_scaler = grad_scaler
-        
+
         # set True to use amp training
         self.amp = amp
 
@@ -85,7 +87,7 @@ class Trainer(SimpleTrainer):
         """
         assert self.model.training, "[Trainer] model was changed to eval mode!"
         assert torch.cuda.is_available(), "[Trainer] CUDA is required for AMP training!"
-        from torch.cuda.amp import autocast
+        from torch.amp.autocast_mode import autocast
 
         start = time.perf_counter()
         """
@@ -97,13 +99,18 @@ class Trainer(SimpleTrainer):
         """
         If you want to do something with the losses, you can wrap the model.
         """
-        with autocast(enabled=self.amp):
+        with autocast("cuda", enabled=self.amp):
             loss_dict = self.model(data)
             if isinstance(loss_dict, torch.Tensor):
                 losses = loss_dict
                 loss_dict = {"total_loss": loss_dict}
             else:
+                loss_dict: dict[str, torch.Tensor]
                 losses = sum(loss_dict.values())
+        assert isinstance(losses, torch.Tensor), (
+            "[Trainer] The model must return a single Tensor or a dict of Tensors, "
+            "but got: {}".format(loss_dict)
+        )
 
         """
         If you need to accumulate gradients or do something similar, you can
@@ -112,6 +119,7 @@ class Trainer(SimpleTrainer):
         self.optimizer.zero_grad()
 
         if self.amp:
+            assert self.grad_scaler is not None, "[Trainer] grad_scaler must be set when using AMP!"
             self.grad_scaler.scale(losses).backward()
             if self.clip_grad_params is not None:
                 self.grad_scaler.unscale_(self.optimizer)
@@ -129,13 +137,12 @@ class Trainer(SimpleTrainer):
     def clip_grads(self, params):
         params = list(filter(lambda p: p.requires_grad and p.grad is not None, params))
         if len(params) > 0:
-            return torch.nn.utils.clip_grad_norm_(
-                parameters=params,
-                **self.clip_grad_params,
-            )
+            assert isinstance(self.clip_grad_params, Mapping), (
+                f"[Trainer] clip_grad_params must be a dict, but got type: {type(self.clip_grad_params)}")
+            return torch.nn.utils.clip_grad_norm_(params, **self.clip_grad_params)
 
     def state_dict(self):
-        ret = super().state_dict()
+        ret: dict = super().state_dict()
         if self.grad_scaler and self.amp:
             ret["grad_scaler"] = self.grad_scaler.state_dict()
         return ret
@@ -155,17 +162,20 @@ def do_test(cfg, model, eval_only=False):
             logger.info("Run evaluation with EMA.")
         else:
             logger.info("Run evaluation without EMA.")
+        ret = dict()
         if "evaluator" in cfg.dataloader:
             ret = inference_on_dataset(
-                model, instantiate(cfg.dataloader.test), instantiate(cfg.dataloader.evaluator)
+                model, instantiate(cfg.dataloader.test),
+                instantiate(cfg.dataloader.evaluator)  # type: ignore[call-arg]
             )
             print_csv_format(ret)
         return ret
-    
+
     logger.info("Run evaluation without EMA.")
     if "evaluator" in cfg.dataloader:
         ret = inference_on_dataset(
-            model, instantiate(cfg.dataloader.test), instantiate(cfg.dataloader.evaluator)
+            model, instantiate(cfg.dataloader.test),
+            instantiate(cfg.dataloader.evaluator),  # type: ignore[call-arg]
         )
         print_csv_format(ret)
 
@@ -174,7 +184,8 @@ def do_test(cfg, model, eval_only=False):
             with ema.apply_model_ema_and_restore(model):
                 if "evaluator" in cfg.dataloader:
                     ema_ret = inference_on_dataset(
-                        model, instantiate(cfg.dataloader.test), instantiate(cfg.dataloader.evaluator)
+                        model, instantiate(cfg.dataloader.test),
+                        instantiate(cfg.dataloader.evaluator)  # type: ignore[call-arg] # noqa
                     )
                     print_csv_format(ema_ret)
                     ret.update(ema_ret)
@@ -200,18 +211,19 @@ def do_train(args, cfg):
                 checkpointer (dict)
                 ddp (dict)
     """
-    model = instantiate(cfg.model)
+    model = instantiate(cfg.model)  # type: ignore[call-arg]
     logger = logging.getLogger("detectron2")
     logger.info("Model:\n{}".format(model))
+    model: torch.nn.Module
     model.to(cfg.train.device)
-    
+
     # instantiate optimizer
     cfg.optimizer.params.model = model
     optim = instantiate(cfg.optimizer)
 
     # build training loader
     train_loader = instantiate(cfg.dataloader.train)
-    
+
     # create ddp model
     model = create_ddp_model(model, **cfg.train.ddp)
 
@@ -225,7 +237,7 @@ def do_train(args, cfg):
         amp=cfg.train.amp.enabled,
         clip_grad_params=cfg.train.clip_grad.params if cfg.train.clip_grad.enabled else None,
     )
-    
+
     checkpointer = DetectionCheckpointer(
         model,
         cfg.train.output_dir,
@@ -234,6 +246,7 @@ def do_train(args, cfg):
         **ema.may_get_ema_checkpointer(cfg, model)
     )
 
+    writers = []
     if comm.is_main_process():
         # writers = default_writers(cfg.train.output_dir, cfg.train.max_iter)
         output_dir = cfg.train.output_dir
@@ -279,7 +292,7 @@ def main(args):
     cfg = LazyConfig.load(args.config_file)
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
     default_setup(cfg, args)
-    
+
     # Enable fast debugging by running several iterations to check for any bugs.
     if cfg.train.fast_dev_run.enabled:
         cfg.train.max_iter = 20
@@ -287,10 +300,11 @@ def main(args):
         cfg.train.log_period = 1
 
     if args.eval_only:
-        model = instantiate(cfg.model)
+        model = instantiate(cfg.model)  # type: ignore[call-arg]
+        model: torch.nn.Module
         model.to(cfg.train.device)
         model = create_ddp_model(model)
-        
+
         # using ema for evaluation
         ema.may_build_model_ema(cfg, model)
         DetectionCheckpointer(model, **ema.may_get_ema_checkpointer(cfg, model)).load(cfg.train.init_checkpoint)

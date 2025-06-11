@@ -7,7 +7,7 @@ from collections import Counter
 import tqdm
 from fvcore.nn import flop_count_table  # can also try flop_count_str
 
-from detectron2.checkpoint import DetectionCheckpointer
+from detrex.checkpoint import DetectionCheckpointer
 from detectron2.config import LazyConfig, instantiate
 from detectron2.engine import default_argument_parser
 from detectron2.utils.analysis import (

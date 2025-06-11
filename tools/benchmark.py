@@ -13,7 +13,7 @@ import tqdm
 from fvcore.common.timer import Timer
 from torch.nn.parallel import DistributedDataParallel
 
-from detectron2.checkpoint import DetectionCheckpointer
+from detrex.checkpoint import DetectionCheckpointer
 from detectron2.config import LazyConfig, instantiate
 from detectron2.data import (
     DatasetFromList,

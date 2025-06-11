@@ -13,7 +13,7 @@ import tqdm
 
 sys.path.insert(0, "./")  # noqa
 from demo.mot_predictors import VisualizationDemo
-from detectron2.checkpoint import DetectionCheckpointer
+from detrex.checkpoint import DetectionCheckpointer
 from detectron2.config import LazyConfig, instantiate
 from detectron2.data.detection_utils import read_image
 from detectron2.utils.logger import setup_logger

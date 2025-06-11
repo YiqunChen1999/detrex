@@ -19,7 +19,7 @@ import time
 import torch
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
-from detectron2.checkpoint import DetectionCheckpointer
+from detrex.checkpoint import DetectionCheckpointer
 from detectron2.config import LazyConfig, instantiate
 from detectron2.engine import (
     SimpleTrainer,
@@ -82,7 +82,7 @@ class Trainer(SimpleTrainer):
 
         # gradient clip hyper-params
         self.clip_grad_params = clip_grad_params
-        
+
         self.device = self.model.device
 
     def run_step(self):
@@ -91,7 +91,7 @@ class Trainer(SimpleTrainer):
         """
         assert self.model.training, "[Trainer] model was changed to eval mode!"
         assert torch.cuda.is_available(), "[Trainer] CUDA is required for AMP training!"
-        from torch.cuda.amp import autocast
+        from torch.amp import autocast
 
         start = time.perf_counter()
         """
@@ -105,7 +105,7 @@ class Trainer(SimpleTrainer):
         """
         data = data_dict_to_cuda(data, self.device)
         loss_dict = self.model(data)
-        with autocast(enabled=self.amp):
+        with autocast("cuda", enabled=self.amp):
             if isinstance(loss_dict, torch.Tensor):
                 losses = loss_dict
                 loss_dict = {"total_loss": loss_dict}
@@ -174,10 +174,10 @@ def do_train(args, cfg):
     logger = logging.getLogger("detectron2")
     logger.info("Model:\n{}".format(model))
     model.to(cfg.train.device)
-    
+
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     logger.info('number of params: {}'.format(n_parameters))
-    
+
     # this is an hack of train_net
     param_dicts = [
         {
@@ -210,10 +210,10 @@ def do_train(args, cfg):
     ]
     if cfg.optimizer.sgd:
         optim = torch.optim.SGD(param_dicts, lr=cfg.optimizer.lr, momentum=0.9,
-                                    weight_decay=cfg.optimizer.weight_decay)
+                                weight_decay=cfg.optimizer.weight_decay)
     else:
         optim = torch.optim.AdamW(param_dicts, lr=cfg.optimizer.lr,
-                                      weight_decay=cfg.optimizer.weight_decay)
+                                  weight_decay=cfg.optimizer.weight_decay)
 
     train_loader = instantiate(cfg.dataloader.train)
 
