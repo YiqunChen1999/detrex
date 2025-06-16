@@ -8,6 +8,8 @@ from tabulate import tabulate
 
 from detectron2.utils.logger import setup_logger
 
+from detrex.utils.dist import get_rank
+
 def convert_basic_c2_names(original_keys):
     """
     Apply some basic name conversion to names in C2 weights.
@@ -252,6 +254,7 @@ def align_and_update_state_dicts(model_state_dict, ckpt_state_dict, c2_conversio
     idxs[max_match_size == 0] = -1
 
     logger = setup_logger(name=__name__)
+    logger.disabled = get_rank() != 0
     # matched_pairs (matched checkpoint key --> matched model key)
     matched_keys = {}
     result_state_dict = {}
