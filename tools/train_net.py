@@ -12,13 +12,15 @@ few common configuration parameters currently defined in "configs/common/train.p
 To add more complicated training logic, you can easily add other configs
 in the config file and implement a new train_net.py to handle them.
 """
-import logging
 import os
 import sys
 import time
+import logging
 from typing import Mapping
+
 import torch
 from torch.nn.parallel import DataParallel, DistributedDataParallel
+from torch.distributed import destroy_process_group
 
 from detectron2.config import LazyConfig, instantiate
 from detectron2.engine import (
@@ -289,6 +291,14 @@ def do_train(args, cfg):
 
 
 def main(args):
+    try:
+        _main(args)
+    except Exception as e:
+        destroy_process_group()
+        raise RuntimeError(f"Failed due to:\n{e}")
+
+
+def _main(args):
     cfg = LazyConfig.load(args.config_file)
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
     default_setup(cfg, args)
@@ -314,6 +324,7 @@ def main(args):
         print(do_test(cfg, model, eval_only=True))
     else:
         do_train(args, cfg)
+    destroy_process_group()
 
 
 if __name__ == "__main__":
