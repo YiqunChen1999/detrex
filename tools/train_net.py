@@ -280,7 +280,9 @@ def do_train(args, cfg):
         ]
     )
 
-    checkpointer.resume_or_load(cfg.train.init_checkpoint, resume=args.resume)
+    resume_from = getattr(cfg.train, "resume_from", "")
+    checkpointer.resume_or_load(cfg.train.init_checkpoint,
+                                resume=args.resume, resume_from=resume_from)
     if args.resume and checkpointer.has_checkpoint():
         # The checkpoint stores the training iteration that just finished, thus we start
         # at the next iteration
@@ -292,13 +294,13 @@ def do_train(args, cfg):
 
 def main(args):
     try:
-        _main(args)
+        impl_main(args)
     except Exception as e:
         destroy_process_group()
         raise RuntimeError(f"Failed due to:\n{e}")
 
 
-def _main(args):
+def impl_main(args):
     cfg = LazyConfig.load(args.config_file)
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
     default_setup(cfg, args)

@@ -39,6 +39,41 @@ class DetectionCheckpointer(Checkpointer):
         self.load_weights_only = load_weights_only
         self.save_weights_only = save_weights_only
 
+    def resume_or_load(self,
+                       path: str, *, resume: bool = True,
+                       resume_from: str = "") -> Dict[str, Any]:
+        """
+        If `resume_from` is provided, this method will load the
+        checkpoint from the specified path. If `resume` is True, this method
+        attempts to resume from the last checkpoint, if exists. Otherwise,
+        load checkpoint from the given path.
+        This is useful when restarting an interrupted training job.
+
+        Args:
+            path: path to the checkpoint.
+            resume: if True, resume from the last checkpoint if it exists
+                and load the model together with all the checkpointables.
+                Otherwise only load the model without loading any
+                checkpointables. It will be ignored if resume_from
+                is provided.
+            resume_from: if provided, this will be used as the
+                checkpoint path to resume from, ignoring the `resume` flag.
+
+        Returns:
+            same as :meth:`load`.
+        """
+        if resume_from:
+            if not os.path.exists(resume_from):
+                err_msg = f"Checkpoint {resume_from} does not exist."
+                raise FileNotFoundError(err_msg)
+            path = resume_from
+            return self.load(path)
+        elif resume and self.has_checkpoint():
+            path = self.get_checkpoint_file()
+            return self.load(path)
+        else:
+            return self.load(path, checkpointables=[])
+
     def load(self, path, *args, **kwargs):
         need_sync = False
 
