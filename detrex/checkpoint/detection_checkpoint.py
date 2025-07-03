@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from termcolor import colored
 from collections import defaultdict
-from typing import Any, Dict, Iterable, List, NamedTuple, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Tuple
 from fvcore.common.checkpoint import Checkpointer, _IncompatibleKeys
 from torch.nn.parallel import DistributedDataParallel
 
@@ -62,14 +62,17 @@ class DetectionCheckpointer(Checkpointer):
         Returns:
             same as :meth:`load`.
         """
+        logger = logging.getLogger(__name__)
         if resume_from:
             if not os.path.exists(resume_from):
                 err_msg = f"Checkpoint {resume_from} does not exist."
                 raise FileNotFoundError(err_msg)
             path = resume_from
+            logger.info(f"Resuming from {path} ...")
             return self.load(path)
         elif resume and self.has_checkpoint():
             path = self.get_checkpoint_file()
+            logger.info(f"Resuming from {path} ...")
             return self.load(path)
         else:
             return self.load(path, checkpointables=[])

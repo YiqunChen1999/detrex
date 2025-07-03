@@ -283,7 +283,9 @@ def do_train(args, cfg):
     resume_from = getattr(cfg.train, "resume_from", "")
     checkpointer.resume_or_load(cfg.train.init_checkpoint,
                                 resume=args.resume, resume_from=resume_from)
-    if args.resume and checkpointer.has_checkpoint():
+    if (
+            os.path.exists(resume_from)
+            or (args.resume and checkpointer.has_checkpoint())):
         # The checkpoint stores the training iteration that just finished, thus we start
         # at the next iteration
         start_iter = trainer.iter + 1
